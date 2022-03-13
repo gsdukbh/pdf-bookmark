@@ -44,6 +44,8 @@ jobs:
             path: compose/binaries/main/deb
   job2:
     name: build for windows
+    needs:
+      - job1
     build:
       runs-on: windows-latest
       steps:
@@ -70,6 +72,8 @@ jobs:
             path: compose/binaries/main/msi
   job3:
     name: build for macos
+    needs:
+      - job2
     build:
       runs-on: macos-latest
       steps:

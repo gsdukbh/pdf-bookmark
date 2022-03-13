@@ -18,124 +18,112 @@ on:
 jobs:
   job1:
     name: build for linux
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Set up JDK 17 for
-          uses: actions/setup-java@v2
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-        - name: Build with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: build
-
-        - name: package with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: package
-
-        - name: Upload math result linux
-          uses: actions/upload-artifact@v2
-          with:
-            name: bookmark-deb
-            path: compose/binaries/main/deb
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17 for
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: build
+      - name: package with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: package
+      - name: Upload math result linux
+        uses: actions/upload-artifact@v2
+        with:
+          name: bookmark-deb
+          path: compose/binaries/main/deb
   job2:
     name: build for windows
     needs:
       - job1
-    build:
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Set up JDK 17 for
-          uses: actions/setup-java@v2
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-        - name: Build with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: build
-
-        - name: package with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: package
-
-        - name: Upload math result windows
-          uses: actions/upload-artifact@v2
-          with:
-            name: bookmark-win
-            path: compose/binaries/main/msi
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17 for
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: build
+      - name: package with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: package
+      - name: Upload math result windows
+        uses: actions/upload-artifact@v2
+        with:
+          name: bookmark-win
+          path: compose/binaries/main/msi
   job3:
     name: build for macos
     needs:
       - job2
-    build:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Set up JDK 17 for
-          uses: actions/setup-java@v2
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-        - name: Build with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: build
-
-        - name: package with Gradle
-          uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-          with:
-            arguments: package
-
-        - name: Upload math result macos
-          uses: actions/upload-artifact@v2
-          with:
-            name: bookmark-macos
-            path: compose/binaries/main/dmg
-
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17 for
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: build
+      - name: package with Gradle
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: package
+      - name: Upload math result macos
+        uses: actions/upload-artifact@v2
+        with:
+          name: bookmark-macos
+          path: compose/binaries/main/dmg
   job4:
     name: release
     needs:
       - job1
       - job2
       - job3
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: download the latest version of the project
-          uses: actions/download-artifact@v2
-          with:
-            name: bookmark-deb
-            path: up/
-        -name: download the latest version of the project
-          uses: actions/download-artifact@v2
-          with:
-            name: bookmark-win
-            path: up/
-        -name: download the latest version of the project
-          uses: actions/download-artifact@v2
-          with:
-            name: bookmark-macos
-            path: up/
-        -name: Generate release tag
-          id: release-tag
-          shell: bash
-          run: |
-            echo "::set-output name=release_tag::v$(date +%Y%m%d%H%M%S)" 
-            echo "使用github actions的打包、并发布构建好的安装包" > release.txt
-        -name: release
-          uses: softprops/action-gh-release@v1
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            with:
-              tag_name: ${{ steps.tag.outputs.release_tag }}
-              body_path: release.txt
-              files: up/*
-          
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: download the latest version of the project
+        uses: actions/download-artifact@v2
+        with:
+          name: bookmark-deb
+          path: up/
+      - name: download the latest version of the project
+        uses: actions/download-artifact@v2
+        with:
+          name: bookmark-win
+          path: up/
+      - name: download the latest version of the project
+        uses: actions/download-artifact@v2
+        with:
+          name: bookmark-macos
+          path: up/
+      - name: Generate release tag
+        id: release-tag
+        shell: bash
+        run: |
+          echo "::set-output name=release_tag::v$(date +%Y%m%d%H%M%S)" 
+          echo "使用github actions的打包、并发布构建好的安装包" > release.txt
+      - name: release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          body_path: release.txt
+          files: up/*
